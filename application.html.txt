@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Top N Products</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+      }
+
+      .container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+
+      .product {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        width: 300px;
+      }
+
+      .product img {
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .product h3 {
+        margin-bottom: 5px;
+      }
+
+      .product .info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .product .info span {
+        font-size: 14px;
+      }
+
+      .product .price {
+        font-size: 18px;
+        font-weight: bold;
+      }
+
+      .product .rating {
+        color: gold;
+        font-size: 16px;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+      }
+
+      .pagination button {
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        margin: 0 5px;
+        cursor: pointer;
+      }
+
+      .pagination button.active {
+        background-color: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Top N Products</h1>
+      <div>
+        <select id="category-filter">
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Headwear">Headwear</option>
+          <option value="Home">Home</option>
+        </select>
+        <select id="company-filter">
+          <option value="">All Companies</option>
+          <option value="Company A">AMZ</option>
+          <option value="Company B">FLP</option>
+          <option value="Company C">SNP</option>
+          <option value="Company D">MYN</option>
+          <option value="Company E">AZO</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="product-list"></div>
+
+    <div class="pagination">
+      <button id="prev-page">Previous</button>
+      <button id="next-page">Next</button>
+    </div>
+
+    <script>
+      const productList = document.getElementById('product-list');
+      const prevPageBtn = document.getElementById('prev-page');
+      const nextPageBtn = document.getElementById('next-page');
+      const categoryFilter = document.getElementById('category-filter');
+      const companyFilter = document.getElementById('company-filter');
+
+      let products = [
+        {
+          id: '1',
+          name: 'Phone',
+          company: 'AMZ',
+          category: 'Electronics',
+          price: 100,
+          rating: 4.5,
+          discount: 10,
+          availability: 'In stock',
+        },
+        {
+          id: '2',
+          name: 'Computer',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 50,
+          rating: 4,
+          discount: 5,
+          availability: 'Out of stock',
+        },
+        {
+          id: '3',
+          name: 'TV',
+          company: 'FLP',
+          category: 'Home',
+          price: 500,
+          rating: 3.5,
+          discount: 15,
+          availability: 'In stock',
+        },
+        {
+          id: '4',
+          name: 'Earphone',
+          company: 'MYN',
+          category: 'Headwear',
+          price: 250,
+          rating: 4.0,
+          discount: 25,
+          availability: 'Out of stock',
+        },
+        {
+          id: '5',
+          name: 'Tablet',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 150,
+          rating: 3.5,
+          discount: 10,
+          availability: 'In stock',
+        },
+        {
+          id: '6',
+          name: 'Charger',
+          company: 'AZO',
+          category: 'Home',
+          price: 100,
+          rating: 4.0,
+          discount: 5,
+          availability: 'Out of stock',
+        },
+        {
+          id: '7',
+          name: 'Mouse',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 50,
+          rating: 3.5,
+          discount: 10,
+          availability: 'Out of stock',
+        },
+        {
+          id: '8',
+          name: 'Keypad',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 100,
+          rating: 3.0,
+          discount: 15,
+          availability: 'In stock',
+        },
+        {
+          id: '9',
+          name: 'Bluetooth',
+          company: 'AMZ',
+          category: 'Headwear',
+          price: 50,
+          rating: 3.5,
+          discount: 10,
+          availability: 'In stock',
+        },
+        {
+          id: '10',
+          name: 'Pendrive',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 50,
+          rating: 3.5,
+          discount: 5,
+          availability: 'Out of stock',
+        },
+        {
+          id: '11',
+          name: 'Remote',
+          company: 'FLP',
+          category: 'Home',
+          price: 100,
+          rating: 3.5,
+          discount: 15,
+          availability: 'In stock',
+        },
+        {
+          id: '12',
+          name: 'Speaker',
+          company: 'FLP',
+          category: 'Headwear',
+          price: 200,
+          rating: 3.0,
+          discount: 20,
+          availability: 'Out of stock',
+        },
+        {
+          id: '13',
+          name: 'Laptop',
+          company: 'SNP',
+          category: 'Electronics',
+          price: 400,
+          rating: 4.0,
+          discount: 33,
+          availability: 'In stock',
+        },
+        {
+          id: '14',
+          name: 'PC',
+          company: 'MYN',
+          category: 'Home',
+          price: 500,
+          rating: 3.5,
+          discount: 20,
+          availability: 'In stock',
+        },
+      ];
+
+      let currentPage = 1;
+      let productsPerPage = 5;
+
+      function displayProducts(productsToDisplay) {
+        productList.innerHTML = '';
+        productsToDisplay.forEach((product) => {
+          const productElement = document.createElement('div');
+          productElement.classList.add('product');
+
+          const imageElement = document.createElement('img');
+          imageElement.src = product.imageUrl;
+          productElement.appendChild(imageElement);
+
+          const nameElement = document.createElement('h3');
+          nameElement.textContent = product.name;
+          productElement.appendChild(nameElement);
+
+          const infoElement = document.createElement('div');
+          infoElement.classList.add('info');
+
+          const companyElement = document.createElement('span');
+          companyElement.textContent = `Company: ${product.company}`;
+          infoElement.appendChild(companyElement);
+
+          const categoryElement = document.createElement('span');
+          categoryElement.textContent = `Category: ${product.category}`;
+          infoElement.appendChild(categoryElement);
+
+          productElement.appendChild(infoElement);
+
+          const priceElement = document.createElement('p');
+          priceElement.classList.add('price');
+          priceElement.textContent = `Price: $${product.price}`;
+          productElement.appendChild(priceElement);
+
+          const ratingElement = document.createElement('p');
+          ratingElement.classList.add('rating');
+          ratingElement.textContent = `Rating: ${product.rating}/5`;
+          productElement.appendChild(ratingElement);
+
+          productList.appendChild(productElement);
+        });
+      }
+
+      function updatePagination() {
+        const totalPages = Math.ceil(products.length / productsPerPage);
+
+        prevPageBtn.disabled = currentPage === 1;
+        nextPageBtn.disabled = currentPage === totalPages;
+      }
+
+      function filterProducts() {
+        let filteredProducts = products;
+
+        const selectedCategory = categoryFilter.value;
+        if (selectedCategory) {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.category === selectedCategory
+          );
+        }
+
+        const selectedCompany = companyFilter.value;
+        if (selectedCompany) {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.company === selectedCompany
+          );
+        }
+
+        return filteredProducts;
+      }
+
+      function updateProducts() {
+        const filteredProducts = filterProducts();
+        const startIndex = (currentPage - 1) * productsPerPage;
+        const endIndex = startIndex + productsPerPage;
+        const productsToDisplay = filteredProducts.slice(startIndex, endIndex);
+
+        displayProducts(productsToDisplay);
+        updatePagination();
+      }
+
+      prevPageBtn.addEventListener('click', () => {
+        currentPage--;
+        updateProducts();
+      });
+
+      nextPageBtn.addEventListener('click', () => {
+        currentPage++;
+        updateProducts();
+      });
+
+      categoryFilter.addEventListener('change', updateProducts);
+      companyFilter.addEventListener('change', updateProducts);
+
+      updateProducts();
+    </script>
+  </body>
+</html>
